@@ -92,7 +92,7 @@ class HuggingfaceModel(Model):  # pylint:disable=c-extension-no-member
 
     @staticmethod
     def infer_vllm_supported_from_model_architecture(model_config_path: str):
-        model_config = AutoConfig.from_pretrained(model_config_path)
+        model_config = AutoConfig.from_pretrained(model_config_path, low_cpu_mem_usage=True)
         architecture = model_config.architectures[0]
         model_cls = ModelRegistry.load_model_cls(architecture)
         if model_cls is None:
@@ -111,7 +111,7 @@ class HuggingfaceModel(Model):  # pylint:disable=c-extension-no-member
                 self.ready = True
                 return self.ready
 
-        model_config = AutoConfig.from_pretrained(model_id_or_path)
+        model_config = AutoConfig.from_pretrained(model_id_or_path, low_cpu_mem_usage=True)
 
         if not self.task:
             self.task = self.infer_task_from_model_architecture(model_config)
@@ -143,19 +143,22 @@ class HuggingfaceModel(Model):  # pylint:disable=c-extension-no-member
         if not self.predictor_host:
             if self.task == MLTask.sequence_classification.value:
                 self.model = AutoModelForSequenceClassification.from_pretrained(
-                    model_id_or_path, device_map=self.device_map)
+                    model_id_or_path, device_map=self.device_map, low_cpu_mem_usage=True)
             elif self.task == MLTask.question_answering.value:
                 self.model = AutoModelForQuestionAnswering.from_pretrained(
-                    model_id_or_path, device_map=self.device_map)
+                    model_id_or_path, device_map=self.device_map, low_cpu_mem_usage=True)
             elif self.task == MLTask.token_classification.value:
                 self.model = AutoModelForTokenClassification.from_pretrained(
-                    model_id_or_path, device_map=self.device_map)
+                    model_id_or_path, device_map=self.device_map, low_cpu_mem_usage=True)
             elif self.task == MLTask.fill_mask.value:
-                self.model = AutoModelForMaskedLM.from_pretrained(model_id_or_path, device_map=self.device_map)
+                self.model = AutoModelForMaskedLM.from_pretrained(model_id_or_path, device_map=self.device_map,
+                                                                  low_cpu_mem_usage=True)
             elif self.task == MLTask.text_generation.value:
-                self.model = AutoModelForCausalLM.from_pretrained(model_id_or_path, device_map=self.device_map)
+                self.model = AutoModelForCausalLM.from_pretrained(model_id_or_path, device_map=self.device_map,
+                                                                  low_cpu_mem_usage=True)
             elif self.task == MLTask.text2text_generation.value:
-                self.model = AutoModelForSeq2SeqLM.from_pretrained(model_id_or_path, device_map=self.device_map)
+                self.model = AutoModelForSeq2SeqLM.from_pretrained(model_id_or_path, device_map=self.device_map,
+                                                                   low_cpu_mem_usage=True)
             else:
                 raise ValueError(f"Unsupported task {self.task}. Please check the supported `task` option.")
             self.model.eval()
