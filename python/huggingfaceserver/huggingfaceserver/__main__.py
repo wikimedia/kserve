@@ -180,6 +180,7 @@ def load_model():
             str(model_id_or_path),
             revision=kwargs.get("model_revision", None),
             trust_remote_code=kwargs.get("trust_remote_code", False),
+            low_cpu_mem_usage=True,
         )
         if kwargs.get("task", None):
             try:
